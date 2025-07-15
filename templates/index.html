@@ -1,0 +1,283 @@
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="utf-8">
+    <meta name="viewport"
+        content="width=device-width, initial-scale=1, shrink-to-fit=no, user-scalable=no">
+    <link rel="shortcut icon"
+        href="{{ url_for('static', filename='favicon.ico') }}">
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.7/dist/css/bootstrap.min.css"
+        rel="stylesheet"
+        integrity="sha384-LN+7fdVzj6u52u30Kp6M/trliBMCMKTyK833zpbD+pXdCLuTusPj697FH4R/5mcr"
+        crossorigin="anonymous">
+    <title>paltool: a Palworld server tool</title>
+    <style>
+    body {
+        background-image: url("{{ url_for('static',
+            filename='paltool-background.png') }}");
+        background-attachment: fixed;
+        background-repeat: no-repeat;
+        background-size: cover;
+
+        font-family: "Helvetica Neue", Arial, sans-serif;
+    }
+    body, html {
+        height: 100%;
+    }
+    </style>
+  </head>
+  <body>
+    <script defer src="https://use.fontawesome.com/releases/v6.7.2/js/all.js">
+    </script>
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.7/dist/js/bootstrap.bundle.min.js"
+        integrity="sha384-ndDqU0Gzau9qJ1lfW4pNLlhNTkCfHzAVBReH9diLvGRem5+R9g2FzA8ZGN954O5Q"
+        crossorigin="anonymous">
+    </script>
+    <script>
+        function restUrl(url) {
+              fetch(url).then(response => {
+                return response.json();
+              }).then(data => {
+              }).catch(err => {
+              }); 
+        }
+
+        function waitForServer(message, waitSecs) {
+            if (!waitSecs) {
+                waitSecs = 30;
+            }
+
+            document.getElementById('modal-action').innerHTML = message;
+            const waitModal = new bootstrap.Modal(document.getElementById('wait-modal'));
+            waitModal.show();
+
+            setTimeout(() => {
+                location.reload(true);
+            }, waitSecs * 1000); 
+        }
+    </script>
+    <nav class="navbar navbar-expand-lg bg-dark" data-bs-theme="dark">
+        <div class="container-fluid">
+            <a class="navbar-brand" href="#">paltool by CowboyNeal</a>
+        </div>
+    </nav>
+    &nbsp;
+    <div class="container">
+        <div class="row">
+            <div class="col">
+                <div class="card">
+                    <div class="card-body">
+                        <div class="container">
+                            <div class="row">
+                                <div class="col">
+                                    <h1>Palworld is:
+                                        <span class="{% if server_status %}text-success{% else %}text-danger{% endif %}">
+                                            {% if server_status %}UP{% else %}DOWN{% endif %}
+                                        </span>
+                                    </h1>
+                                </div>
+                            </div>
+                        </div>
+                        {%- if server_info %}
+                        &nbsp;
+                        <div class="container">
+                            <div class="row">
+                                <div class="col">
+                                    <div class="card">
+                                        <div class="card-body">
+                                            <h5 class="card-title">Server Info</h5>
+                                            <div class="row">
+                                                <div class="col">
+                                                    <b>Server Name</b>
+                                                </div>
+                                                <div class="col">
+                                                    {{ server_info.servername }}&nbsp;
+                                                </div>
+                                            </div>
+                                            <div class="row">
+                                                <div class="col">
+                                                    <b>Description</b>
+                                                </div>
+                                                <div class="col">
+                                                {%- if server_info.description %}
+                                                    {{ server_info.description }}&nbsp;
+                                                    {% else -%}
+                                                    <i>empty</i>
+                                                {% endif -%}
+                                                </div>
+                                            </div>
+                                            <div class="row">
+                                                <div class="col">
+                                                    <b>Version</b>
+                                                </div>
+                                                <div class="col">
+                                                    {{ server_info.version }}&nbsp;
+                                                </div>
+                                            </div>
+                                            <div class="row">
+                                                <div class="col">
+                                                    <b>World GUID</b>
+                                                </div>
+                                                <div class="col">
+                                                    {{ server_info.worldguid }}&nbsp;
+                                                </div>
+                                            </div>
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                        {% endif -%}
+                        {%- if player_list.players %}
+                        &nbsp;
+                        <div class="container">
+                            <div class="row">
+                                <div class="col">
+                                    <div class="card">
+                                        <div class="card-body">
+                                            <h5 class="card-title">Player List</h5>
+                                            <table class="table table-sm table-striped
+                                                table-hover">
+                                                <thead>
+                                                    <tr>
+                                                        <th>name</th>
+                                                        <th>accountName</th>
+                                                        <th>playerId</th>
+                                                        <th>userId</th>
+                                                        <th>level</th>
+                                                        <th>ip</th>
+                                                    </tr>
+                                                </thead>
+                                                <tbody>
+                                                    {%- for player in player_list.players -%}
+                                                    <tr>
+                                                        <td>{{ player.name }}&nbsp;</td>
+                                                        <td>{{ player.accountName }}&nbsp;
+                                                        </td>
+                                                        <td>{{ player.playerId}}&nbsp;</td>
+                                                        <td>{{ player.userId}}&nbsp;</td>
+                                                        <td>{{ player.level}}&nbsp;</td>
+                                                        <td>{{ player.ip}}&nbsp;</td>
+                                                    </tr>
+                                                    {%- endfor -%}
+                                                </tbody>
+                                            </table>
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                        {% endif -%}
+                        {%- if server_status %}
+<script>
+    function sendMessage() {
+        var message = document.getElementById('message-input').value;
+
+        if (!message) {
+            return;
+        }
+
+        restUrl('/message/' + message);
+        document.getElementById('message-input').value = '';
+    }
+</script>
+                        &nbsp;
+                        <div class="container">
+                            <div class="row">
+                                <div class="col">
+                                    <div class="card">
+                                        <div class="card-body">
+                                            <h5 class="card-title">Send a Message</h5>
+                                            <div class="input-group">
+                                                <input id="message-input" type="text"
+                                                    class="form-control"
+                                                    placeholder="Message"
+                                                    aria-label="Message"
+                                                    aria-describedby="button-addon2">
+                                                <button class="btn btn-outline-primary"
+                                                    type="button"
+                                                    id="button-addon2"
+                                                    onClick="sendMessage()">
+                                                    Send Message
+                                                </button>
+                                            </div>
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                        {% endif -%}
+                        &nbsp;
+                        <div class="container">
+                            <div class="row">
+                                <div class="col">
+                                    <div class="card">
+                                        <div class="card-body">
+                                            <h5 class="card-title">Start/Stop the Server</h5>
+                                            <button class="btn btn-outline-success"{% if server_status %}disabled{% endif %}
+                                                id="startButton">
+                                                Start Palworld
+                                            </button>
+<script>
+    document.getElementById('startButton').addEventListener('click', () => {
+        if (window.confirm('This will start the Palworld server. Are you sure?')) {
+            restUrl('/start-server');
+            waitForServer('Starting server...', 30);
+        }
+    });
+</script>
+                                            <button class="btn btn-outline-danger" {% if not server_status %}disabled{% endif %}
+                                                id="stopButton">
+                                                Shutdown Palworld
+                                            </button>
+<script>
+    document.getElementById('stopButton').addEventListener('click', () => {
+        if (window.confirm('This will shut down the Palworld server. Are you sure?')) {
+            restUrl('/stop-server');
+            waitForServer('Stopping server...', 40);
+        }
+    });
+</script>
+                                            <button class="btn btn-outline-danger" {% if not server_status %}disabled{% endif %}
+                                                id="forceStopButton">
+                                                Forcefully Shutdown Palworld
+                                            </button>
+<script>
+    document.getElementById('forceStopButton').addEventListener('click', () => {
+        if (window.confirm('This will FORCEFULLY SHUT DOWN the Palworld server. Are you sure?')) {
+            restUrl('/force-stop-server');
+            waitForServer('Forcefully stopping server...', 20);
+        }
+    });
+</script>
+                                            <p class="card-text mt-3">Please
+                                                reload the page for the latest
+                                                status before starting or
+                                                stopping the server.
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+    <div class="modal fade" id="wait-modal"
+        data-bs-backdrop="static" tabindex="-1">
+        <div class="modal-dialog modal-dialog-centered">
+            <div class="modal-content">
+                <div class="card">
+                    <div class="card-body">
+                        <div class="d-flex align-items-center">
+                            <strong role="status" id="modal-action"></strong>
+                            <div class="spinner-border ms-auto" aria-hidden="true"></div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+  </body>
+</html>
