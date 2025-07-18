@@ -67,9 +67,11 @@ def send_message(message):
 
 @app.route('/start-server')
 def start_server():
-    subprocess.Popen(['/usr/bin/sudo', '-u', app.config['PALWORLD_USER'],
-                      '/home/' + app.config['PALWORLD_USER'] + '/bin/palstart'])
-    return '200';
+    home_dir = os.path.expanduser('~' + app.config['PALWORLD_USER'])
+    if home_dir:
+        subprocess.Popen(['/usr/bin/sudo', '-u', app.config['PALWORLD_USER'],
+                          home_dir + '/bin/palstart'])
+    return '200'
 
 
 @app.route('/stop-server')
@@ -103,4 +105,4 @@ def force_stop_server():
     subprocess.Popen(['/usr/bin/sudo', '-u', app.config['PALWORLD_USER'],
                       '/bin/rm', app.config['PID_FILE']])
 
-    return '200';
+    return '200'
