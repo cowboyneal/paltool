@@ -74,6 +74,11 @@ def start_server():
     return '200'
 
 
+def remove_pid_file():
+    subprocess.Popen(['/usr/bin/sudo', '-u', app.config['PALWORLD_USER'],
+                      '/bin/rm', app.config['PID_FILE']])
+
+
 @app.route('/stop-server')
 def stop_server():
     url = app.config['BASE_URL'] + 'shutdown'
@@ -88,9 +93,7 @@ def stop_server():
                                     data=payload)
     except: Exception
 
-    subprocess.Popen(['/usr/bin/sudo', '-u', app.config['PALWORLD_USER'],
-                      '/bin/rm', app.config['PID_FILE']])
-
+    remove_pid_file()
     return '200'
 
 
@@ -102,7 +105,5 @@ def force_stop_server():
         response = requests.request("POST", url, headers=get_headers())
     except: Exception
 
-    subprocess.Popen(['/usr/bin/sudo', '-u', app.config['PALWORLD_USER'],
-                      '/bin/rm', app.config['PID_FILE']])
-
+    remove_pid_file()
     return '200'
